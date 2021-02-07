@@ -1,5 +1,6 @@
 package com.bank.service.impl;
 
+import static com.bank.util.DateUtil.SIMPLE_DATE_FORMAT;
 import static com.bank.util.DateUtil.SIMPLE_DATE_TIME_FORMAT;
 import static com.bank.util.DateUtil.getDateAsString;
 
@@ -72,7 +73,8 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
 	private TransactionDAO getTransactionDAO(Transaction transaction) {
 		TransactionDAO dao = new TransactionDAO();
 		dao.setId(transaction.getId());
-		dao.setDate(getDateAsString(transaction.getDate(), SIMPLE_DATE_TIME_FORMAT));
+		dao.setDate(getDateAsString(transaction.getDate(), SIMPLE_DATE_FORMAT));
+		dao.setTime(getDateAsString(transaction.getDate(), SIMPLE_DATE_TIME_FORMAT));
 		dao.setAmount(transaction.getAmount());
 		dao.setAvailableBalance(transaction.getAvailableBalance());
 		dao.setDescription(transaction.getDescription());
