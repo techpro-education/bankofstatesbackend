@@ -14,8 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.bank.dao.RecipientDAO;
 import com.bank.dao.TransactionDAO;
 import com.bank.dao.UserDAO;
+import com.bank.model.Recipient;
 import com.bank.model.Transaction;
 import com.bank.model.User;
 import com.bank.repository.UserRepo;
@@ -56,6 +58,13 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
 					.collect(Collectors.toList());
 			userDAO.setTransactions(transactions);
 
+			// Add Recipients details
+			List<RecipientDAO> recipients = user
+					.getRecipients()
+					.stream()
+					.map(this::getRecipientDAO)
+					.collect(Collectors.toList());
+			userDAO.setRecipients(recipients);
 		}
 		return userDAO;
 	}
@@ -81,6 +90,17 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
 		dao.setType(transaction.getType());
 		dao.setIsTransfer(transaction.getIsTransfer());
 		return dao;
+	}
+	
+	private RecipientDAO getRecipientDAO(Recipient recipient) {
+		RecipientDAO recipientDAO = new RecipientDAO();
+		recipientDAO.setId(recipient.getId());
+		recipientDAO.setName(recipient.getName());
+		recipientDAO.setEmail(recipient.getEmail());
+		recipientDAO.setPhone(recipient.getPhone());
+		recipientDAO.setBankName(recipient.getBankName());
+		recipientDAO.setBankNumber(recipient.getBankNumber());
+		return recipientDAO;
 	}
 
 }

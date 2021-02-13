@@ -8,19 +8,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bank.model.Account;
+import com.bank.model.Recipient;
 import com.bank.model.Transaction;
 import com.bank.model.User;
 import com.bank.repository.AccountRepo;
+import com.bank.repository.RecipientRepo;
 import com.bank.request.TransactionRequest;
+import com.bank.request.TransferRequest;
 import com.bank.service.AccountService;
 import com.bank.service.TransactionService;
 import com.bank.util.TransactionType;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 	
 	 @Autowired
 	 AccountRepo accountRepo;
+	 
+	 @Autowired
+	 RecipientRepo recipientRepo;
+	 
 	 
 	 @Autowired
 	 TransactionService transactionService;
@@ -66,6 +76,26 @@ public class AccountServiceImpl implements AccountService {
 		Transaction transaction = new Transaction(date,request.getComment(),
 				TransactionType.WITHDRAW.toString(),amount,
 				account.getAccountBalance(),false,user.getAccount());
+		transactionService.saveTransaction(transaction);
+	}
+
+	@Override
+	public void saveRecipient(Recipient recipient) {
+		recipientRepo.save(recipient);		
+	}
+
+	@Override
+	public void transfer(TransferRequest request, User user) {
+		log.info("Transferred got triggered"); 
+		Account account = user.getAccount();
+		Double amount = request.getAmount();
+		account.setAccountBalance(account.getAccountBalance().
+				subtract(new BigDecimal(amount)));
+		accountRepo.save(account);
+		Date date = new Date();
+		Transaction transaction = new Transaction(date,"Transferred to "+request.getRecipientName(),
+				TransactionType.TRANSFER.toString(),amount,
+				account.getAccountBalance(),true,user.getAccount());
 		transactionService.saveTransaction(transaction);
 	} 
 
