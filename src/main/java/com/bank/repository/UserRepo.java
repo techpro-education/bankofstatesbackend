@@ -16,5 +16,7 @@ public interface UserRepo extends CrudRepository<User, Long>{
 	Boolean existsByEmail(String email);
 
 	List<User> findAll();
+	
+	long count();
 
 }
