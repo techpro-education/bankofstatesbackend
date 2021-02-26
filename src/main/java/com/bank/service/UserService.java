@@ -13,4 +13,6 @@ public interface UserService {
 
 	List<UserDAO> getAllUsers();
 
+	void deleteUser(Long id);
+
 }

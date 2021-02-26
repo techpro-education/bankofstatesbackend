@@ -24,16 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AccountServiceImpl implements AccountService {
-	
-	 @Autowired
-	 AccountRepo accountRepo;
-	 
-	 @Autowired
-	 RecipientRepo recipientRepo;
-	 
-	 
-	 @Autowired
-	 TransactionService transactionService;
+
+	@Autowired
+	AccountRepo accountRepo;
+
+	@Autowired
+	RecipientRepo recipientRepo;
+
+	@Autowired
+	TransactionService transactionService;
 
 	@Override
 	public Account createAccount() {
@@ -42,22 +41,25 @@ public class AccountServiceImpl implements AccountService {
 		account.setAccountNumber(getAccountNumber());
 		accountRepo.save(account);
 		return accountRepo.findByAccountNumber(account.getAccountNumber());
-	}	
+	}
 
 	@Override
 	public void deposit(TransactionRequest request, User user) {
 		Account account = user.getAccount();
 		Double amount = request.getAmount();
-		account.setAccountBalance(account.getAccountBalance().
-				add(new BigDecimal(amount)));
-		accountRepo.save(account);
+		if (account != null) {
+			account.setAccountBalance(
+					account.getAccountBalance() != null ? account.getAccountBalance().add(new BigDecimal(amount))
+							: new BigDecimal(amount));
+			accountRepo.save(account);
+		}
+
 		Date date = new Date();
-		Transaction transaction = new Transaction(date,request.getComment(),
-				TransactionType.DEPOSIT.toString(),amount,
-				account.getAccountBalance(),false,user.getAccount());
-		transactionService.saveTransaction(transaction);		
+		Transaction transaction = new Transaction(date, request.getComment(), TransactionType.DEPOSIT.toString(),
+				amount, account.getAccountBalance(), false, user.getAccount());
+		transactionService.saveTransaction(transaction);
 	}
-	
+
 	private Long getAccountNumber() {
 		long smallest = 1000_0000_0000_0000L;
 		long biggest = 9999_9999_9999_9999L;
@@ -69,34 +71,30 @@ public class AccountServiceImpl implements AccountService {
 	public void withdraw(TransactionRequest request, User user) {
 		Account account = user.getAccount();
 		Double amount = request.getAmount();
-		account.setAccountBalance(account.getAccountBalance().
-				subtract(new BigDecimal(amount)));
+		account.setAccountBalance(account.getAccountBalance().subtract(new BigDecimal(amount)));
 		accountRepo.save(account);
 		Date date = new Date();
-		Transaction transaction = new Transaction(date,request.getComment(),
-				TransactionType.WITHDRAW.toString(),amount,
-				account.getAccountBalance(),false,user.getAccount());
+		Transaction transaction = new Transaction(date, request.getComment(), TransactionType.WITHDRAW.toString(),
+				amount, account.getAccountBalance(), false, user.getAccount());
 		transactionService.saveTransaction(transaction);
 	}
 
 	@Override
 	public void saveRecipient(Recipient recipient) {
-		recipientRepo.save(recipient);		
+		recipientRepo.save(recipient);
 	}
 
 	@Override
 	public void transfer(TransferRequest request, User user) {
-		log.info("Transferred got triggered"); 
+		log.info("Transferred got triggered");
 		Account account = user.getAccount();
 		Double amount = request.getAmount();
-		account.setAccountBalance(account.getAccountBalance().
-				subtract(new BigDecimal(amount)));
+		account.setAccountBalance(account.getAccountBalance().subtract(new BigDecimal(amount)));
 		accountRepo.save(account);
 		Date date = new Date();
-		Transaction transaction = new Transaction(date,"Transferred to "+request.getRecipientName(),
-				TransactionType.TRANSFER.toString(),amount,
-				account.getAccountBalance(),true,user.getAccount());
+		Transaction transaction = new Transaction(date, "Transferred to " + request.getRecipientName(),
+				TransactionType.TRANSFER.toString(), amount, account.getAccountBalance(), true, user.getAccount());
 		transactionService.saveTransaction(transaction);
-	} 
+	}
 
 }

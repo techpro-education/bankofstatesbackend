@@ -137,4 +137,9 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
 		recipientDAO.setBankNumber(recipient.getBankNumber());
 		return recipientDAO;
 	}
+
+	@Override
+	public void deleteUser(Long id) {
+		userRepo.deleteById(id); 
+	}
 }
